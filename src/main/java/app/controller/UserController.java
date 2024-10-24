@@ -35,16 +35,6 @@ public class UserController {
         return "create";
     }
 
-    @PostMapping("/create")
-    public String createUser(@Valid @ModelAttribute("user") User user, BindingResult bindingResult, Model model) {
-        if (bindingResult.hasErrors()) {
-            return "create";
-        }
-        userService.save(user);
-        return "redirect:/users";
-    }
-
-
     @GetMapping("/edit")
     public String editUserForm(@RequestParam Long id, Model model) {
         User user = userService.findById(id);
@@ -53,6 +43,15 @@ public class UserController {
         }
         model.addAttribute("user", user);
         return "edit";
+    }
+
+    @PostMapping("/create")
+    public String createUser(@Valid @ModelAttribute("user") User user, BindingResult bindingResult, Model model) {
+        if (bindingResult.hasErrors()) {
+            return "create";
+        }
+        userService.save(user);
+        return "redirect:/users";
     }
 
     @PostMapping("/edit")
@@ -76,4 +75,6 @@ public class UserController {
         e.printStackTrace();
         return "error";
     }
+
+
 }
