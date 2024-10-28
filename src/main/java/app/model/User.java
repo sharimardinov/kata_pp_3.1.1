@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -36,8 +37,20 @@ public class User {
     @Email(message = "Некорректный формат email")
     private String email;
 
+    @NotBlank(message = "Пароль не может быть пустым")
+    private String password;
+
     @Min(value = 1, message = "Возраст должен быть больше 0")
     private int age;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Set<Role> roles; // Роли пользователя, должны соответствовать требованиям Security
+
 
     @Override
     public boolean equals(Object o) {
