@@ -9,6 +9,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
+
+import java.security.Principal;
 import java.util.List;
 
 @Controller
@@ -23,11 +25,13 @@ public class UserController {
     }
 
     @GetMapping
-    public String listUsers(Model model) {
+    public String listUsers(Model model, Principal principal) {
         List<User> users = userService.findAll();
         model.addAttribute("users", users);
+        model.addAttribute("isAdmin", userService.isAdmin(principal.getName()));
         return "list";
     }
+
 
     @GetMapping("/create")
     public String createUserForm(Model model) {

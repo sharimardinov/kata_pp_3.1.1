@@ -68,5 +68,14 @@ public class UserService implements UserDetailsService {
                 authorities
         );
     }
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
+    public boolean isAdmin(String email) {
+        User user = findByEmail(email);
+        return user != null && user.getAuthorities().stream()
+                .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"));
+    }
 
 }
