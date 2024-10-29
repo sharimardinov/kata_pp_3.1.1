@@ -3,12 +3,11 @@ package app.config;
 import app.service.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
@@ -25,31 +24,48 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf
-                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())) // Использование репозитория токенов CSRF
+                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/register").permitAll()
+                        .requestMatchers("/", "/error").permitAll()
+                        .requestMatchers("/admin/**").hasAuthority("ADMIN")
+                        .requestMatchers("/user/**").hasAnyAuthority("USER","ADMIN")
                         .anyRequest().authenticated()
                 )
                 .formLogin(login -> login
-                        .loginPage("/login")
-                        .defaultSuccessUrl("/users", true) // перенаправление после успешного входа
-                        .failureUrl("/login?error=true") // перенаправление при ошибке
+                        .successHandler((request, response, authentication) -> {
+                            System.out.println("User roles: " + authentication.getAuthorities());
+                            boolean isAdmin = authentication.getAuthorities().stream()
+                                    .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ADMIN"));
+                            if (isAdmin) {
+                                response.sendRedirect("/admin");
+                            } else {
+                                response.sendRedirect("/user");
+                            }
+                        })
                         .permitAll()
                 )
-                .logout(LogoutConfigurer::permitAll); // Разрешите доступ к странице выхода для всех
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/login?logout=true")
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID")
+                        .permitAll()
+                );
 
         return http.build();
     }
 
+
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
         AuthenticationManagerBuilder auth = http.getSharedObject(AuthenticationManagerBuilder.class);
-        auth.userDetailsService(userService).passwordEncoder(passwordEncoder()); // Регистрация userDetailsService с паролем
+        auth.userDetailsService(userService).passwordEncoder(passwordEncoder());
         return auth.build();
     }
 
     @Bean
+    @Lazy
     public BCryptPasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(); // Регистрация BCryptPasswordEncoder как бина
+        return new BCryptPasswordEncoder();
     }
 }
