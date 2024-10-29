@@ -27,16 +27,21 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())) // Использование репозитория токенов CSRF
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/register").permitAll()
+                        .requestMatchers("/login", "/register", "/error").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(login -> login
                         .loginPage("/login")
                         .defaultSuccessUrl("/users", true) // перенаправление после успешного входа
-                        .failureUrl("/login?error=true") // перенаправление при ошибке
                         .permitAll()
                 )
-                .logout(LogoutConfigurer::permitAll); // Разрешите доступ к странице выхода для всех
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/login?logout=true")
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID")
+                        .permitAll()
+                );
 
         return http.build();
     }

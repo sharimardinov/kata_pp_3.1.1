@@ -41,8 +41,15 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public void update(Long id, User user) {
-        user.setId(id);
-        userRepository.save(user);
+        // Логика обновления пользователя
+        User existingUser = userRepository.findById(id).orElseThrow(() -> new RuntimeException("Пользователь не найден"));
+        existingUser.setName(user.getName());
+        existingUser.setSurname(user.getSurname());
+        existingUser.setEmail(user.getEmail());
+        existingUser.setPassword(user.getPassword()); // Учтите, что пароль должен быть закодирован
+        existingUser.setAge(user.getAge());
+        existingUser.setRoles(user.getRoles());
+        userRepository.save(existingUser);
     }
 
     @Transactional
@@ -75,7 +82,7 @@ public class UserService implements UserDetailsService {
     public boolean isAdmin(String email) {
         User user = findByEmail(email);
         return user != null && user.getAuthorities().stream()
-                .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"));
+                .anyMatch(authority -> authority.getAuthority().equals("ADMIN"));
     }
 
 }
