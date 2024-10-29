@@ -34,8 +34,6 @@
         <div class="mb-3">
             <label for="role" class="form-label">Роль:</label>
             <select id="role" th:field="*{roles}" class="form-select" required>
-                <option value="USER">Пользователь</option>
-                <option value="ADMIN">Администратор</option>
                 <option th:each="role : ${roles}" th:value="${role.id}" th:text="${role.name}"></option>
             </select>
             <div class="text-danger" th:if="${#fields.hasErrors('roles')}" th:errors="*{roles}"></div>
