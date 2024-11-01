@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 
 @Lazy
 @Entity
-@Table(name = "users")
+@Table(name = "users", uniqueConstraints = {@UniqueConstraint(columnNames = "email")})
 @Getter
 @Setter
 @NoArgsConstructor

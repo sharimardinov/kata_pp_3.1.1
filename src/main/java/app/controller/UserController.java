@@ -6,14 +6,11 @@ import app.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/user")
@@ -30,22 +27,10 @@ public class UserController {
     }
 
     @GetMapping
-    public String homepage(Model model) {
-        List<User> users = userService.findAll();
-        model.addAttribute("users", users);
-        model.addAttribute("isAdmin", false); // Для отображения администраторских функций
-        model.addAttribute("roles", roleService.findAll()); // Передаем список ролей
-        return "user/users"; // Имя шаблона для списка пользователей
-    }
-
-
-    @GetMapping("/users")
-    public String listUsers(Model model) {
-        List<User> users = userService.findAll();
-        model.addAttribute("users", users);
-        model.addAttribute("isAdmin", false); // Для отображения администраторских функций
-        model.addAttribute("roles", roleService.findAll()); // Передаем список ролей
-
+    public String homepage(Model model, Authentication authentication) {
+        String currentUsername = authentication.getName();
+        User currentUser = userService.findByEmail(currentUsername);
+        model.addAttribute("users", List.of(currentUser)); // Массив из одного пользователя
         return "user/users"; // Имя шаблона для списка пользователей
     }
 }
