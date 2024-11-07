@@ -31,6 +31,6 @@ public class UserController {
         String currentUsername = authentication.getName();
         User currentUser = userService.findByEmail(currentUsername);
         model.addAttribute("users", List.of(currentUser)); // Массив из одного пользователя
-        return "user/users"; // Имя шаблона для списка пользователей
+        return "userPage"; // Имя шаблона для списка пользователей
     }
 }

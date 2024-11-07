@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Управление пользователями</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+<div th:insert="~{fragments/navbar :: navbar}"></div>
+
+<div class="container mt-5">
+    <h1 class="mb-4">Admin table</h1>
+
+    <ul class="nav nav-tabs" id="userTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="user-table-tab" data-bs-toggle="tab" data-bs-target="#user-table" type="button" role="tab" aria-controls="user-table" aria-selected="true">User Table</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="new-user-tab" data-bs-toggle="tab" data-bs-target="#new-user" type="button" role="tab" aria-controls="new-user" aria-selected="false">New User</button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="userTabsContent">
+        <!-- Вкладка с таблицей пользователей -->
+        <div class="tab-pane fade show active" id="user-table" role="tabpanel" aria-labelledby="user-table-tab">
+            <div class="mt-4">
+                <h2>All Users</h2>
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Имя</th>
+                        <th>Фамилия</th>
+                        <th>Возраст</th>
+                        <th>Email</th>
+                        <th>Роль</th>
+                        <th>Действия</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="user : ${users}">
+                        <td th:text="${user.id}"></td>
+                        <td th:text="${user.name}"></td>
+                        <td th:text="${user.surname}"></td>
+                        <td th:text="${user.age}"></td>
+                        <td th:text="${user.email}"></td>
+                        <td th:text="${user.isAdmin ? 'ADMIN' : 'USER'}"></td>
+                        <td>
+                            <div th:if="${isAdmin}">
+                                <a class="btn btn-primary" th:href="@{/admin/edit(id=${user.id})}">Редактировать</a>
+                                <form th:action="@{/admin/delete}" method="post" style="display:inline;">
+                                    <input type="hidden" name="id" th:value="${user.id}" />
+                                    <button class="btn btn-danger" type="submit">Удалить</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Вкладка с формой добавления нового пользователя -->
+        <div class="tab-pane fade" id="new-user" role="tabpanel" aria-labelledby="new-user-tab">
+            <div class="mt-4">
+                <form th:action="@{/admin/create}" method="post">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Имя</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="surname" class="form-label">Фамилия</label>
+                        <input type="text" class="form-control" id="surname" name="surname" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="age" class="form-label">Возраст</label>
+                        <input type="number" class="form-control" id="age" name="age" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                        <div class="text-danger mt-2" th:if="${emailError}" th:text="'Такой email уже зарегистрирован'"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Пароль</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="roles" class="form-label">Роль</label>
+                        <select id="roles" name="roles" class="form-select" required>
+                            <option th:each="role : ${roles}" th:value="${role.id}" th:text="${role.name}"></option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Создать</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Подключаем скрипты Bootstrap -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

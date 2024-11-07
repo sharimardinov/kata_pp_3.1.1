@@ -10,7 +10,7 @@
 <div class="container mt-5">
     <h2>Вход в систему</h2>
     <form action="/login" method="post">
-        <!-- CSRF-токен для защиты от атак -->
+
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
         <div class="mb-3">

@@ -1,6 +1,6 @@
 package app.controller;
 
-import app.model.Role; // Импортируем класс Role
+import app.model.Role;
 import app.model.User;
 import app.service.RoleService;
 import app.service.UserService;
@@ -15,7 +15,7 @@ import java.util.List;
 
 @Controller
 @RequestMapping("/admin")
-@PreAuthorize("hasRole('ADMIN')") // Обеспечивает доступ только для администраторов
+@PreAuthorize("hasRole('ADMIN')")
 public class AdminController {
 
     private final UserService userService;
@@ -27,74 +27,70 @@ public class AdminController {
         this.roleService = roleService;
     }
 
+    // Главная страница админки со списком пользователей, формой создания и редактирования
     @GetMapping
-    public String homepage(Model model) {
-        List<User> users = userService.findAll();
-        model.addAttribute("users", users);
+    public String homepage(Model model, Principal principal) {
+        String email = principal.getName();
+        User user = userService.findByEmail(email);
+        String role = user.getRoles().stream()
+                .map(Role::getName)
+                .findFirst()
+                .orElse("USER");
+
+        // Добавляем основные атрибуты
+        model.addAttribute("userEmail", email);
+        model.addAttribute("userRole", role);
         model.addAttribute("isAdmin", true);
         model.addAttribute("roles", roleService.findAll());
-        return "admin/users";
-    }
 
-    @GetMapping("/users")
-    public String listUsers(Model model) {
+        // Передаем пользователей для отображения в таблице
         List<User> users = userService.findAll();
         model.addAttribute("users", users);
-        model.addAttribute("isAdmin", true);
-        model.addAttribute("roles", roleService.findAll());
-        return "admin/users"; // Имя шаблона для списка пользователей
+
+        // Новый пользователь для формы создания
+        model.addAttribute("newUser", new User());
+
+        return "admin/adminPage"; // Страница управления пользователями
     }
 
-
-    @GetMapping("/create")
-    public String showCreateUserForm(Model model) {
-        model.addAttribute("user", new User());
-        model.addAttribute("roles", roleService.findAll()); // Передаем список ролей
-        return "admin/create";
-    }
-
+    // Создание нового пользователя
     @PostMapping("/create")
-    public String createUser(@ModelAttribute User user, Model model) {
+    public String createUser(@ModelAttribute("newUser") User user, Model model) {
         try {
-            model.addAttribute("user", user);
-            model.addAttribute("roles",  roleService.findAll()); // Передаем список ролей
             userService.save(user);
-            return "redirect:/admin/users";
+            return "redirect:/admin"; // Возврат на страницу списка пользователей
         } catch (RuntimeException e) {
             model.addAttribute("emailError", e.getMessage());
-            return "admin/create";
+            model.addAttribute("roles", roleService.findAll());
+            return "admin/adminPage"; // Остаемся на той же странице, чтобы отобразить ошибки
         }
     }
 
-
+    // Показ формы редактирования (используется в модальном окне)
     @GetMapping("/edit")
     public String showEditUserForm(@RequestParam("id") Long id, Model model) {
         User user = userService.findById(id);
-        model.addAttribute("user", user);
-        model.addAttribute("roles",  roleService.findAll()); // Передаем список ролей
-        return "admin/edit"; // Имя шаблона для редактирования пользователя
+        model.addAttribute("user", user); // Передаем пользователя в форму редактирования
+        model.addAttribute("roles", roleService.findAll()); // Передаем список ролей
+        return "admin/edit"; // Возвращаем шаблон модального окна редактирования
     }
-
-
+    // Обновление пользователя
     @PostMapping("/edit")
-    public String editUser(@ModelAttribute User user, Model model) {
+    public String editUser(@ModelAttribute("user") User user, Model model) {
         try {
             userService.update(user.getId(), user);
-            model.addAttribute("user", user);
-            model.addAttribute("roles",  roleService.findAll()); // Передаем список ролей
-
-            return "redirect:/admin/users";
+            return "redirect:/admin"; // Возврат на страницу списка пользователей
         } catch (RuntimeException e) {
             model.addAttribute("emailError", e.getMessage());
-            model.addAttribute("user", user); // Возвращаем пользователя, чтобы заполнить форму
-            return "admin/edit"; // Вернуться к форме редактирования с сообщением об ошибке
+            model.addAttribute("roles", roleService.findAll());
+            return "admin/adminPage"; // Остаемся на странице, чтобы отобразить ошибки
         }
     }
 
-
+    // Удаление пользователя
     @PostMapping("/delete")
     public String deleteUser(@RequestParam("id") Long id) {
         userService.delete(id);
-        return "redirect:/admin/users"; // Перенаправление на список пользователей
+        return "redirect:/admin"; // Возврат на страницу списка пользователей
     }
 }
