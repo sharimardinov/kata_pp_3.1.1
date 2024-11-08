@@ -4,6 +4,7 @@ import app.model.Role;
 import app.model.User;
 import app.service.RoleService;
 import app.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -20,11 +21,13 @@ public class AdminController {
 
     private final UserService userService;
     private final RoleService roleService;
+    private final HttpServletRequest request;
 
     @Autowired
-    public AdminController(UserService userService, RoleService roleService) {
+    public AdminController(UserService userService, RoleService roleService, HttpServletRequest request) {
         this.userService = userService;
         this.roleService = roleService;
+        this.request = request;
     }
 
     // Главная страница админки со списком пользователей, формой создания и редактирования
@@ -49,6 +52,7 @@ public class AdminController {
 
         // Новый пользователь для формы создания
         model.addAttribute("newUser", new User());
+        model.addAttribute("requestURI", request.getRequestURI());
 
         return "admin/adminPage"; // Страница управления пользователями
     }

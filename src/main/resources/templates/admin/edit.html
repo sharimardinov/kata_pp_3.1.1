@@ -8,22 +8,28 @@
 </head>
 <body>
 <div th:insert="~{fragments/navbar :: navbar}"></div>
+
 <div class="container mt-5">
-    <h1 class="mb-4">Редактировать пользователя</h1>
+    <h1 class="mb-4">Edit</h1>
     <form th:action="@{/admin/edit}" method="post" th:object="${user}">
-        <input type="hidden" th:field="*{id}">
+        <!-- Поле для ID (недоступно для редактирования) -->
         <div class="mb-3">
-            <label for="name" class="form-label">Имя:</label>
+            <label for="id" class="form-label">ID:</label>
+            <input type="text" class="form-control" id="id" th:field="*{id}" readonly/>
+        </div>
+
+        <div class="mb-3">
+            <label for="name" class="form-label">First Name:</label>
             <input type="text" class="form-control" id="name" th:field="*{name}" required/>
             <div class="text-danger" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
         </div>
         <div class="mb-3">
-            <label for="surname" class="form-label">Фамилия:</label>
+            <label for="surname" class="form-label">Last Name:</label>
             <input type="text" class="form-control" id="surname" th:field="*{surname}" required/>
             <div class="text-danger" th:if="${#fields.hasErrors('surname')}" th:errors="*{surname}"></div>
         </div>
         <div class="mb-3">
-            <label for="age" class="form-label">Возраст:</label>
+            <label for="age" class="form-label">Age:</label>
             <input type="number" class="form-control" id="age" th:field="*{age}" required min="1"/>
             <div class="text-danger" th:if="${#fields.hasErrors('age')}" th:errors="*{age}"></div>
         </div>
@@ -34,15 +40,14 @@
         </div>
 
         <div class="mb-3">
-            <label for="role" class="form-label">Роль:</label>
+            <label for="role" class="form-label">Role:</label>
             <select id="role" th:field="*{roles}" class="form-select" required>
                 <option th:each="role : ${roles}" th:value="${role.id}" th:text="${role.name}"></option>
             </select>
         </div>
 
-        <button type="submit" class="btn btn-primary">Сохранить</button>
-        <a class="btn btn-secondary" th:href="@{/admin}">Назад</a>
-
+        <button type="submit" class="btn btn-primary">Edit</button>
+        <a class="btn btn-secondary" th:href="@{/admin}">Close</a>
     </form>
 </div>
 </body>
