@@ -27,7 +27,6 @@
         </ul>
 
         <div class="tab-content" id="userTabsContent">
-            <!-- Вкладка с таблицей пользователей -->
             <div class="tab-pane fade show active" id="user-table" role="tabpanel" aria-labelledby="user-table-tab">
                 <div class="mt-4">
                     <h2>All Users</h2>
@@ -53,15 +52,31 @@
                             <td th:text="${user.email}"></td>
                             <td th:text="${user.isAdmin ? 'ADMIN' : 'USER'}"></td>
                             <td>
-                                <a class="btn btn-primary" th:href="@{'/admin/edit?id=' + ${user.id}}">Edit</a>
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edmodal" >Edit</button>
+
+                                <div class="modal fade" id="edmodal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h1 class="modal-title fs-5" id="exampleModalLabel">Заголовок модального окна</h1>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                                            </div>
+                                            <div class="modal-body">
+
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                                                <button type="button" class="btn btn-primary">Сохранить изменения</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </td>
                             <td>
-                                <div th:if="${isAdmin}">
-                                    <form th:action="@{/admin/delete}" method="post" style="display:inline;">
-                                        <input type="hidden" name="id" th:value="${user.id}" />
-                                        <button class="btn btn-danger" type="submit">Delete</button>
-                                    </form>
-                                </div>
+                                <form th:action="@{/admin/delete}" method="post">
+                                    <input type="hidden" name="id" th:value="${user.id}" />
+                                    <button class="btn btn-danger" type="submit">Delete</button>
+                                </form>
                             </td>
                         </tr>
                         </tbody>
