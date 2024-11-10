@@ -30,28 +30,23 @@ public class AdminController {
         this.request = request;
     }
 
+
     // Главная страница админки со списком пользователей, формой создания и редактирования
     @GetMapping
     public String homepage(Model model, Principal principal) {
         String email = principal.getName();
         User user = userService.findByEmail(email);
+        String role = user.getRoles().stream().map(Role::getName).findFirst().orElse("USER");
 
-        String role = user.getRoles().stream()
-                .map(Role::getName)
-                .findFirst()
-                .orElse("USER");
         model.addAttribute("userEmail", email);
         model.addAttribute("userRole", role);
         model.addAttribute("isAdmin", true);
         model.addAttribute("roles", roleService.findAll());
-
-        List<User> users = userService.findAll();
-        model.addAttribute("users", users);
-
+        model.addAttribute("users", userService.findAll());
         model.addAttribute("newUser", new User());
         model.addAttribute("requestURI", request.getRequestURI());
 
-        return "admin/adminPage"; // Страница управления пользователями
+        return "admin/adminPage";
     }
 
     // Создание нового пользователя
@@ -85,6 +80,4 @@ public class AdminController {
         userService.delete(id);
         return "redirect:/admin"; // Возврат на страницу списка пользователей
     }
-
-
 }

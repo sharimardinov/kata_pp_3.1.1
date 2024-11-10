@@ -48,7 +48,7 @@ public class UserController {
         List<User> users = userService.findAll();
         model.addAttribute("users", users);
 
-        // Новый пользователь для формы создания
+        // Новый пользователь для формы
         model.addAttribute("newUser", new User());
         String currentUsername = authentication.getName();
         User currentUser = userService.findByEmail(currentUsername);
