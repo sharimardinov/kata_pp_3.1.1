@@ -8,9 +8,9 @@ import java.util.Collection;
 import java.util.stream.Collectors;
 
 public class CustomUserDetails implements UserDetails {
-    private String email;
-    private String password;
-    private Collection<? extends GrantedAuthority> authorities;
+    private final String email;
+    private final String password;
+    private final Collection<? extends GrantedAuthority> authorities;
 
     public CustomUserDetails(User user) {
         this.email = user.getEmail();
