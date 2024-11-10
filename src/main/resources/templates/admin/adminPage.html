@@ -71,7 +71,9 @@
                                                 <form th:method="post" th:action="@{/admin/edit}" th:object="${user}">
                                                     <div class="mb-3">
                                                         <label for="idEdit" class="form-label">Id</label>
-                                                        <input type="number" class="form-control" th:value="${user.id}" name="name" id="idEdit" disabled/>
+                                                        <input type="number" class="form-control" th:value="${user.id}" name="id" id="idEdit" disabled/>
+                                                        <!-- Скрытое поле для отправки id -->
+                                                        <input type="hidden" th:value="${user.id}" name="id"/>
                                                     </div>
                                                     <div class="mb-3">
                                                         <label for="firstNameEdit" class="form-label">First Name</label>

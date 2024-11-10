@@ -80,8 +80,11 @@ public class AdminController {
 
     @PostMapping("/edit")
     public String editUser(@ModelAttribute("user") User user, Model model) {
-            userService.update(user.getId(), user);
-            return "redirect:/admin";
+        if (user.getId() == null) {
+            throw new IllegalArgumentException("ID cannot be null");
+        }
+        userService.update(user.getId(), user);
+        return "redirect:/admin";
     }
 
     @PatchMapping("/edit/{id}")
