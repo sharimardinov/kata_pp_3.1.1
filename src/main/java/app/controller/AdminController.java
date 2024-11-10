@@ -33,24 +33,21 @@ public class AdminController {
     // Главная страница админки со списком пользователей, формой создания и редактирования
     @GetMapping
     public String homepage(Model model, Principal principal) {
-         String email = principal.getName();
+        String email = principal.getName();
         User user = userService.findByEmail(email);
+
         String role = user.getRoles().stream()
                 .map(Role::getName)
                 .findFirst()
                 .orElse("USER");
-
-        // Добавляем основные атрибуты
         model.addAttribute("userEmail", email);
         model.addAttribute("userRole", role);
         model.addAttribute("isAdmin", true);
         model.addAttribute("roles", roleService.findAll());
 
-        // Передаем пользователей для отображения в таблице
         List<User> users = userService.findAll();
         model.addAttribute("users", users);
 
-        // Новый пользователь для формы создания
         model.addAttribute("newUser", new User());
         model.addAttribute("requestURI", request.getRequestURI());
 
@@ -64,9 +61,7 @@ public class AdminController {
             userService.save(user);
             return "redirect:/admin"; // Возврат на страницу списка пользователей
         } catch (RuntimeException e) {
-            model.addAttribute("emailError", e.getMessage());
-            model.addAttribute("roles", roleService.findAll());
-            return "admin/adminPage"; // Остаемся на той же странице, чтобы отобразить ошибки
+            return "redirect:/admin"; // Остаемся на той же странице, чтобы отобразить ошибки
         }
     }
 

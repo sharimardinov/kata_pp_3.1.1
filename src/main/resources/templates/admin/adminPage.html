@@ -72,7 +72,7 @@
                                                     <div class="mb-3">
                                                         <label for="idEdit" class="form-label">Id</label>
                                                         <input type="number" class="form-control" th:value="${user.id}" name="id" id="idEdit" disabled/>
-                                                        <!-- Скрытое поле для отправки id -->
+                                                        <!-- это для того чтобы в пост передавался айди скрытое поле-->
                                                         <input type="hidden" th:value="${user.id}" name="id"/>
                                                     </div>
                                                     <div class="mb-3">
@@ -187,7 +187,7 @@
                 </div>
             </div>
 
-            <!-- Вкладка с формой добавления нового пользователя -->
+            <!-- Добавление юзера -->
             <div class="tab-pane fade" id="new-user" role="tabpanel" aria-labelledby="new-user-tab">
                 <div class="mt-4">
                     <form th:action="@{/admin/create}" method="post">
@@ -215,7 +215,7 @@
                         <div class="mb-3">
                             <label for="roles" class="form-label">Role</label>
                             <select id="roles" name="roles" class="form-select" required>
-                                <option th:each="role : ${roles}" th:value="${role.id}" th:text="${role.name}"></option>
+                                <option th:each="role : ${roles}" th:value="${role.id}" th:text="${role.name}" th:if="${role.name == 'ADMIN' || role.name == 'USER'}"></option>
                             </select>
                         </div>
                         <button type="submit" class="btn btn-primary">Создать</button>

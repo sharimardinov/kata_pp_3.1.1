@@ -90,25 +90,9 @@ public class UserService implements UserDetailsService {
         return userRepository.findByEmail(email);
     }
 
-
-    public boolean isAdmin(String email) {
-        User user = findByEmail(email);
-        return user != null && user.getAuthorities().stream()
-                .anyMatch(authority -> authority.getAuthority().equals("ADMIN"));
-    }
-
-    public boolean emailExists(String email) {
-        return userRepository.findByEmail(email) != null;
-    }
-
     public boolean emailExists(String email, Long userId) {
         User existingUser = userRepository.findByEmail(email);
         return existingUser != null && !existingUser.getId().equals(userId);
-    }
-
-
-    public List<Role> findAllRoles() {
-        return roleRepository.findAll();
     }
 
 }
