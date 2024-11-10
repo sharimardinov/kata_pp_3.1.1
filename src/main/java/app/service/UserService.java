@@ -84,10 +84,12 @@ public class UserService implements UserDetailsService {
         return new CustomUserDetails(user);
     }
 
+    @Transactional
     public User findByEmail(String email) {
         return userRepository.findByEmail(email);
     }
 
+    @Transactional
     public boolean emailExists(String email, Long userId) {
         User existingUser = userRepository.findByEmail(email);
         return existingUser != null && !existingUser.getId().equals(userId);
