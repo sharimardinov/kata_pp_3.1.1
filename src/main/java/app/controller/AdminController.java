@@ -33,7 +33,7 @@ public class AdminController {
     // Главная страница админки со списком пользователей, формой создания и редактирования
     @GetMapping
     public String homepage(Model model, Principal principal) {
-        String email = principal.getName();
+         String email = principal.getName();
         User user = userService.findByEmail(email);
         String role = user.getRoles().stream()
                 .map(Role::getName)
@@ -70,25 +70,24 @@ public class AdminController {
         }
     }
 
-    // Показ формы редактирования (используется в модальном окне)
-    @GetMapping("/edit")
-    public String showEditUserForm(@RequestParam("id") Long id, Model model) {
+    @GetMapping("/edit/{id}")
+    public String showEditUserForm(@RequestParam("id") Long id, Model model, RoleService roleService) {
         User user = userService.findById(id);
         model.addAttribute("user", user); // Передаем пользователя в форму редактирования
         model.addAttribute("roles", roleService.findAll()); // Передаем список ролей
         return "admin/edit"; // Возвращаем шаблон модального окна редактирования
     }
-    // Обновление пользователя
+
     @PostMapping("/edit")
     public String editUser(@ModelAttribute("user") User user, Model model) {
-        try {
             userService.update(user.getId(), user);
-            return "redirect:/admin"; // Возврат на страницу списка пользователей
-        } catch (RuntimeException e) {
-            model.addAttribute("emailError", e.getMessage());
-            model.addAttribute("roles", roleService.findAll());
-            return "admin/adminPage"; // Остаемся на странице, чтобы отобразить ошибки
-        }
+            return "redirect:/admin";
+    }
+
+    @PatchMapping("/edit/{id}")
+    public String updateUser(@PathVariable Long id, @ModelAttribute User user) {
+        userService.update(id, user);
+        return "redirect:/admin";
     }
 
     // Удаление пользователя
@@ -97,4 +96,6 @@ public class AdminController {
         userService.delete(id);
         return "redirect:/admin"; // Возврат на страницу списка пользователей
     }
+
+
 }
