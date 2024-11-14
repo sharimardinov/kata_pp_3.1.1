@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <title>Управление пользователями</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark" th:fragment="navbar">
+    <div class="container-fluid">
+        <a class="navbar-brand" th:href="@{admin}">
+            <strong th:text="${userEmail}"></strong> with roles: <span th:text="${userRole}"></span>
+        </a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <form action="/logout" method="post" class="nav-link">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                        <button type="submit" style="background:none; border:none; color:inherit; cursor:pointer;">Logout</button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="d-flex">
+    <nav class="sidebar sidebar-light bg-light" style="width: 150px;">
+        <div class="nav flex-column nav-pills pt-4" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+            <a class="nav-link" href="/admin" th:if="${userRole == 'ADMIN'}"
+               th:classappend="${requestURI.startsWith('/admin')} ? ' active'"
+               role="tab" aria-controls="v-pills-home" aria-selected="true">Admin</a>
+            <a class="nav-link" href="/user" th:if="${userRole == 'USER' || userRole == 'ADMIN'}"
+               th:classappend="${requestURI == '/user'} ? ' active'"
+               role="tab" aria-controls="v-pills-profile" aria-selected="false">User</a>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <h1 class="mb-4">Admin table</h1>
+
+        <ul class="nav nav-tabs" id="userTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="user-table-tab" data-bs-toggle="tab" data-bs-target="#user-table" type="button" role="tab" aria-controls="user-table" aria-selected="true">User Table</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="new-user-tab" data-bs-toggle="tab" data-bs-target="#new-user" type="button" role="tab" aria-controls="new-user" aria-selected="false">New User</button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="userTabsContent">
+            <div class="tab-pane fade show active" id="user-table" role="tabpanel" aria-labelledby="user-table-tab">
+                <div class="mt-4">
+                    <h2>All Users</h2>
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Age</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Edit</th>
+                            <th>Delete</th>
+                        </tr>
+                        </thead>
+                        <tbody id="userTableBody">
+                        <!-- Строки таблицы будут добавляться через JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- Добавление юзера -->
+            <div class="tab-pane fade" id="new-user" role="tabpanel" aria-labelledby="new-user-tab">
+                <div class="mt-4">
+                    <form id="createUserForm" method="post">
+                        <div class="mb-3">
+                            <label for="create-name" class="form-label">First Name</label>
+                            <input type="text" class="form-control" id="create-name" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="create-surname" class="form-label">Last Name</label>
+                            <input type="text" class="form-control" id="create-surname" name="surname" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="create-age" class="form-label">Age</label>
+                            <input type="number" class="form-control" id="create-age" name="age" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="create-email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="create-email" name="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="create-password" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="create-password" name="password" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="create-roles" class="form-label">Role</label>
+                            <select id="create-roles" name="roles" class="form-select" required>
+                                <option value="USER">User</option>
+                                <option value="ADMIN">Admin</option>
+                            </select>
+                        </div>
+                        <button type="button" class="btn btn-primary" onclick="createUser()">Создать</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальные окна для редактирования и удаления -->
+<!-- Они будут динамически генерироваться для каждого пользователя -->
+
+<script>
+    // Функция для получения пользователей из API
+    function fetchUsers() {
+        $.ajax({
+            url: 'http://localhost:8080/api/admin/users',
+            method: 'GET',
+            success: function(users) {
+                const userTableBody = $('#userTableBody');
+                userTableBody.empty();
+
+                users.forEach(function(user) {
+                    const row = $(`
+                        <tr>
+                            <td>${user.id}</td>
+                            <td>${user.name}</td>
+                            <td>${user.surname}</td>
+                            <td>${user.age}</td>
+                            <td>${user.email}</td>
+                            <td>${user.roles.map(role => role.name).join(', ')}</td>
+                            <td><button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editUserModal${user.id}">Edit</button></td>
+                            <td><button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteUserModal${user.id}">Delete</button></td>
+                        </tr>
+                    `);
+                    userTableBody.append(row);
+
+                    // Модальное окно для редактирования
+                    const editModal = `
+                    <div class="modal fade" id="editUserModal${user.id}" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="editUserModalLabel">Edit User</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form id="edit-form-${user.id}">
+                                        <div class="mb-3">
+                                            <label for="edit-name-${user.id}" class="form-label">First Name</label>
+                                            <input type="text" class="form-control" id="edit-name-${user.id}" value="${user.name}" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="edit-surname-${user.id}" class="form-label">Last Name</label>
+                                            <input type="text" class="form-control" id="edit-surname-${user.id}" value="${user.surname}" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="edit-age-${user.id}" class="form-label">Age</label>
+                                            <input type="number" class="form-control" id="edit-age-${user.id}" value="${user.age}" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="edit-email-${user.id}" class="form-label">Email</label>
+                                            <input type="email" class="form-control" id="edit-email-${user.id}" value="${user.email}" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="edit-password-${user.id}" class="form-label">Password</label>
+                                            <input type="password" class="form-control" id="edit-password-${user.id}" value="${user.password}" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="edit-roles-${user.id}" class="form-label">Role</label>
+                                            <select class="form-select" id="edit-roles-${user.id}" required>
+                                                <option value="USER" ${user.roles.includes('USER') ? 'selected' : ''}>User</option>
+                                                <option value="ADMIN" ${user.roles.includes('ADMIN') ? 'selected' : ''}>Admin</option>
+                                            </select>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-primary" onclick="editUser(${user.id})">Save changes</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+                    $('body').append(editModal);
+
+                    // Модальное окно для удаления
+                    const deleteModal = `
+                    <div class="modal fade" id="deleteUserModal${user.id}" tabindex="-1" aria-labelledby="deleteUserModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="deleteUserModalLabel">Delete User</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <p>Are you sure you want to delete ${user.name} ${user.surname}?</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                    <button type="button" class="btn btn-danger" onclick="deleteUser(${user.id})">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+                    $('body').append(deleteModal);
+                });
+            }
+        });
+    }
+
+    // Функция для создания пользователя
+    function createUser() {
+        const data = {
+            name: $('#create-name').val(),
+            surname: $('#create-surname').val(),
+            age: $('#create-age').val(),
+            email: $('#create-email').val(),
+            password: $('#create-password').val(),
+            roles: [$('#create-roles').val()]
+        };
+
+        $.ajax({
+            url: 'http://localhost:8080/api/admin/users',
+            method: 'POST',
+            data: JSON.stringify(data),
+            contentType: 'application/json',
+            success: function() {
+                alert('User created successfully!');
+                fetchUsers(); // обновить список пользователей
+            },
+            error: function() {
+                alert('Error creating user');
+            }
+        });
+    }
+
+    // Функция для редактирования пользователя
+    function editUser(userId) {
+        const data = {
+            name: $(`#edit-name-${userId}`).val(),
+            surname: $(`#edit-surname-${userId}`).val(),
+            age: $(`#edit-age-${userId}`).val(),
+            email: $(`#edit-email-${userId}`).val(),
+            password: $(`#edit-password-${userId}`).val(),
+            roles: [$(`#edit-roles-${userId}`).val()]
+        };
+
+        $.ajax({
+            url: `http://localhost:8080/api/admin/users/${userId}`,
+            method: 'PUT',
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="_csrf"]').attr('content') // Получаем токен из мета-тега
+            },
+            data: JSON.stringify(data),
+            contentType: 'application/json',
+            success: function() {
+                alert('User updated successfully!');
+                fetchUsers(); // обновить список пользователей
+            },
+            error: function() {
+                alert('Error updating user');
+            }
+        });
+
+    }
+
+    // Функция для удаления пользователя
+    function deleteUser(userId) {
+        $.ajax({
+            url: `http://localhost:8080/api/admin/users/${userId}`,
+            method: 'DELETE',
+            success: function() {
+                alert('User deleted successfully!');
+                fetchUsers(); // обновить список пользователей
+            },
+            error: function() {
+                alert('Error deleting user');
+            }
+        });
+    }
+
+    // Загружаем пользователей при загрузке страницы
+    $(document).ready(function() {
+        fetchUsers();
+    });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+
+</body>
+</html>
