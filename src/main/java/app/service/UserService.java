@@ -41,13 +41,14 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public void save(User user) {
+    public User save(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword())); // Кодируйте пароль перед сохранением
         userRepository.save(user);
+        return user;
     }
 
     @Transactional
-    public void update(Long id, User user) {
+    public User update(Long id, User user) {
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
 
@@ -66,6 +67,7 @@ public class UserService implements UserDetailsService {
         existingUser.setAge(user.getAge());
         existingUser.setRoles(user.getRoles());
         userRepository.save(existingUser);
+        return existingUser;
     }
 
     @Transactional

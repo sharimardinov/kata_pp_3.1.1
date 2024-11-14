@@ -1,17 +1,22 @@
 package app.config;
 
 import app.service.UserService;
+import lombok.var;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
+import java.util.List;
+
 @Configuration
+@EnableWebSecurity
 public class SecurityConfig {
 
     private final UserService userService;
@@ -23,17 +28,20 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                // Включаем CSRF защиту с использованием куки для REST API
                 .csrf(csrf -> csrf
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
+
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/error").permitAll()
-                        .requestMatchers("/admin/**").hasAuthority("ADMIN")
-                        .requestMatchers("/user/**").hasAnyAuthority("USER","ADMIN")
-                        .anyRequest().authenticated()
+                        .requestMatchers("/", "/error").permitAll() // Разрешаем доступ к корневой странице и ошибкам
+                        .requestMatchers("/admin/**").hasAuthority("ADMIN") // Защита API для админа
+                        .requestMatchers("/user/**").hasAnyAuthority("USER", "ADMIN") // Защита API для пользователя
+                        .anyRequest().authenticated() // Все остальные запросы требуют аутентификации
                 )
+
+                // Настраиваем форму логина
                 .formLogin(login -> login
                         .successHandler((request, response, authentication) -> {
-                            System.out.println("User roles: " + authentication.getAuthorities());
                             boolean isAdmin = authentication.getAuthorities().stream()
                                     .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ADMIN"));
                             if (isAdmin) {
@@ -44,6 +52,8 @@ public class SecurityConfig {
                         })
                         .permitAll()
                 )
+
+                // Настраиваем логаут
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .invalidateHttpSession(true)
@@ -53,7 +63,6 @@ public class SecurityConfig {
 
         return http.build();
     }
-
 
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {

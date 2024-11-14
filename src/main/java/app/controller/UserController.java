@@ -54,6 +54,6 @@ public class UserController {
         User currentUser = userService.findByEmail(currentUsername);
         model.addAttribute("users", List.of(currentUser));
         model.addAttribute("requestURI", request.getRequestURI());
-        return "user/userPage"; // Имя шаблона для списка пользователей
+        return "userPage"; // Имя шаблона для списка пользователей
     }
 }
