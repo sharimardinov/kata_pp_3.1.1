@@ -35,10 +35,23 @@ public class UserService implements UserDetailsService {
         return userRepository.findAll();
     }
 
+//    @Transactional(readOnly = true)
+//    public User findById(Long id) {
+//        return userRepository.findById(id).orElse(null);
+//    }
+
     @Transactional(readOnly = true)
     public User findById(Long id) {
-        return userRepository.findById(id).orElse(null);
+        try {
+            System.out.println("Запрос в базу данных с ID: " + id);
+            return userRepository.findById(id).orElse(null);
+        } catch (Exception e) {
+            System.err.println("Ошибка при запросе пользователя с ID: " + id);
+            e.printStackTrace();
+            return null;  // Можно возвращать null или обработать ошибку
+        }
     }
+
 
     @Transactional
     public User save(User user) {

@@ -1,7 +1,6 @@
 package app.config;
 
 import app.service.UserService;
-import lombok.var;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
@@ -29,25 +28,13 @@ public class SecurityConfig {
     }
 
     @Bean
-//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-//        http
-//                .csrf().disable()  // Отключаем CSRF защиту
-//                .authorizeHttpRequests(auth -> auth
-//                        .anyRequest().permitAll()  // Разрешаем доступ ко всем запросам без аутентификации
-//                );
-//
-//        return http.build();
-//    }
-
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // Включаем CSRF защиту с использованием куки для REST API
                 .csrf
                         (csrf -> csrf
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
 
                 .authorizeHttpRequests(auth -> auth
-                         // Разрешаем доступ к статическим файлам
                         .requestMatchers("/", "/error").permitAll() // Разрешаем доступ к корневой странице и ошибкам
                         .requestMatchers("api/admin/**").hasAuthority("ADMIN") // Защита API для админа
                         .requestMatchers("api/user/**").hasAnyAuthority("USER", "ADMIN") // Защита API для пользователя
