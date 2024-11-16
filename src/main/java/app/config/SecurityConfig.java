@@ -12,6 +12,9 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
@@ -26,16 +29,28 @@ public class SecurityConfig {
     }
 
     @Bean
+//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+//        http
+//                .csrf().disable()  // Отключаем CSRF защиту
+//                .authorizeHttpRequests(auth -> auth
+//                        .anyRequest().permitAll()  // Разрешаем доступ ко всем запросам без аутентификации
+//                );
+//
+//        return http.build();
+//    }
+
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 // Включаем CSRF защиту с использованием куки для REST API
-                .csrf(csrf -> csrf
+                .csrf
+                        (csrf -> csrf
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
 
                 .authorizeHttpRequests(auth -> auth
+                         // Разрешаем доступ к статическим файлам
                         .requestMatchers("/", "/error").permitAll() // Разрешаем доступ к корневой странице и ошибкам
-                        .requestMatchers("/admin/**").hasAuthority("ADMIN") // Защита API для админа
-                        .requestMatchers("/user/**").hasAnyAuthority("USER", "ADMIN") // Защита API для пользователя
+                        .requestMatchers("api/admin/**").hasAuthority("ADMIN") // Защита API для админа
+                        .requestMatchers("api/user/**").hasAnyAuthority("USER", "ADMIN") // Защита API для пользователя
                         .anyRequest().authenticated() // Все остальные запросы требуют аутентификации
                 )
 
@@ -45,9 +60,9 @@ public class SecurityConfig {
                             boolean isAdmin = authentication.getAuthorities().stream()
                                     .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ADMIN"));
                             if (isAdmin) {
-                                response.sendRedirect("/admin");
+                                response.sendRedirect("/api/admin");
                             } else {
-                                response.sendRedirect("/user");
+                                response.sendRedirect("/api/user");
                             }
                         })
                         .permitAll()
@@ -71,6 +86,21 @@ public class SecurityConfig {
         return auth.build();
     }
 
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.addAllowedOrigin("http://localhost:3000");  // Разрешаем запросы с порта 3000
+        configuration.addAllowedMethod("GET");
+        configuration.addAllowedMethod("POST");
+        configuration.addAllowedMethod("PUT");
+        configuration.addAllowedMethod("DELETE");
+        configuration.setAllowCredentials(true);  // Разрешаем передачу cookies (если используется)
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/api/admin/**", configuration);  // Применяем CORS к нужному пути
+
+        return source;
+    }
     @Bean
     @Lazy
     public BCryptPasswordEncoder passwordEncoder() {

@@ -42,10 +42,25 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public User save(User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword())); // Кодируйте пароль перед сохранением
+        // Проверяем, существует ли уже пользователь с таким email
+        if (userRepository.existsByEmail(user.getEmail())) {
+            throw new RuntimeException("Пользователь с таким email уже существует");
+        }
+
+        // Проверка на наличие ролей
+        if (user.getRoles() == null || user.getRoles().isEmpty()) {
+            throw new RuntimeException("Роли не могут быть пустыми");
+        }
+
+        // Кодируем пароль перед сохранением
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+        // Сохраняем пользователя
         userRepository.save(user);
+
         return user;
     }
+
 
     @Transactional
     public User update(Long id, User user) {
@@ -71,8 +86,9 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public void delete(Long id) {
+    public boolean delete(Long id) {
         userRepository.deleteById(id);
+        return true;
     }
 
     @Override

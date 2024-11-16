@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 
 @Controller
-@RequestMapping("/admin")
+@RequestMapping("/api/admin")
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminController {
 
@@ -44,7 +44,7 @@ public class AdminController {
         model.addAttribute("requestURI", request.getRequestURI());
         return "adminPage";
     }
-//
+
 //    // Создание нового пользователя
 //    @PostMapping("/create")
 //    public String createUser(@ModelAttribute("newUser") User user, Model model) {
