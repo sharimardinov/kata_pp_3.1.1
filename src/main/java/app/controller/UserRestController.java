@@ -32,19 +32,4 @@ public class UserRestController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();  // Возвращаем 404, если пользователь не найден
         }
     }
-
-    // Обновление профиля текущего пользователя
-    @PutMapping("/profile")
-    public ResponseEntity<User> updateProfile(Principal principal, @RequestBody User updatedUser) {
-        User currentUser = userService.findByEmail(principal.getName());
-        if (currentUser != null) {
-            currentUser.setName(updatedUser.getName());
-            currentUser.setSurname(updatedUser.getSurname());
-            currentUser.setAge(updatedUser.getAge());
-            User updated = userService.update(currentUser.getId(), currentUser);
-            return ResponseEntity.ok(updated);  // Возвращаем статус 200 с обновленными данными пользователя
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();  // Возвращаем 404, если пользователь не найден
-        }
-    }
 }

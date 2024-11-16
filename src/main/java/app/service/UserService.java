@@ -35,11 +35,6 @@ public class UserService implements UserDetailsService {
         return userRepository.findAll();
     }
 
-//    @Transactional(readOnly = true)
-//    public User findById(Long id) {
-//        return userRepository.findById(id).orElse(null);
-//    }
-
     @Transactional(readOnly = true)
     public User findById(Long id) {
         try {
