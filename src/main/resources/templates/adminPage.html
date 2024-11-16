@@ -14,14 +14,17 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="/admin">
-            <strong id="userEmail"></strong> with roles: <span id="userRole"></span>
+            <strong id="navUserEmail"></strong> with roles: <span id="navUserRole"></span>
         </a>
         <div class="collapse navbar-collapse">
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item">
-                    <button id="logoutButton" class="nav-link" style="background:none; border:none; color:inherit; cursor:pointer;">Logout</button>
+                    <button id="logoutButton" class="nav-link" style="background:none; border:none; color:#fff; cursor:pointer; padding: 10px 15px;">
+                        Logout
+                    </button>
                 </li>
             </ul>
+
         </div>
     </div>
 </nav>
@@ -30,13 +33,13 @@
     <nav class="sidebar sidebar-light bg-light" style="width: 150px;">
         <div class="nav flex-column nav-pills pt-4" id="v-pills-tab" role="tablist" aria-orientation="vertical">
             <!-- Кнопка "Admin" будет видна только пользователям с правами 'ADMIN' -->
-            <a class="nav-link" href="/api/admin" th:if="${userRole == 'ADMIN'}"
-               th:classappend="${requestURI == '/api/admin'} ? ' active'"
+            <a class="nav-link" href="/admin" th:if="${userRole == 'ADMIN'}"
+               th:classappend="${requestURI == '/admin'} ? ' active'"
                role="tab" aria-controls="v-pills-home" aria-selected="true">Admin</a>
 
             <!-- Кнопка "User" будет видна пользователям с правами 'USER' или 'ADMIN' -->
-            <a class="nav-link" href="api/user" th:if="${userRole == 'USER' || userRole == 'ADMIN'}"
-               th:classappend="${requestURI == '/api/user'} ? ' active'"
+            <a class="nav-link" href="/user" th:if="${userRole == 'USER' || userRole == 'ADMIN'}"
+               th:classappend="${requestURI == '/user'} ? ' active'"
                role="tab" aria-controls="v-pills-profile" aria-selected="false">User</a>
         </div>
 
@@ -518,39 +521,40 @@
 
 
 
-    // //НАВБАР
-    // document.addEventListener('DOMContentLoaded', function() {
-    //     // Предполагается, что email и роль пользователя получены с сервера через JS
-    //     const userEmail = $('#editUserEmail').val(user.email);
-    //     const userRole = 'admin'; // замените на ваш способ получения роли пользователя
-    //
-    //     // Отображаем email и роль в навбаре
-    //     document.getElementById('userEmail').textContent = userEmail;
-    //     document.getElementById('userRole').textContent = userRole;
-    //
-    //     // Обработчик клика для кнопки выхода
-    //     document.getElementById('logoutButton').addEventListener('click', function() {
-    //         // Здесь можно выполнить логику выхода через JavaScript (например, запрос на сервер)
-    //         fetch('/logout', {
-    //             method: 'POST',
-    //             headers: {
-    //                 'Content-Type': 'application/json',
-    //                 'X-CSRF-TOKEN': '{{_csrf.token}}'  // Используйте серверный механизм для CSRF токена
-    //             },
-    //             body: JSON.stringify({}) // Пустое тело для выхода, если необходимо
-    //         }).then(response => {
-    //             if (response.ok) {
-    //                 // Направление на страницу после выхода
-    //                 window.location.href = '/login'; // или другая страница после выхода
-    //             } else {
-    //                 alert('Logout failed');
-    //             }
-    //         }).catch(error => {
-    //             console.error('Error during logout:', error);
-    //             alert('Logout failed');
-    //         });
-    //     });
-    // });
+    //НАВБАР
+    $(document).ready(function() {
+        // Запрос для получения данных о текущем пользователе
+        $.ajax({
+            url: 'http://localhost:8080/api/user/profile',  // Путь для получения данных о пользователе
+            method: 'GET',  // GET запрос для получения данных
+            success: function(response) {
+                if (response && response.email && response.roles && response.roles.length > 0) {
+                    const userEmail = response.email;  // Извлекаем email пользователя
+                    const userRole = response.roles[0].name;  // Извлекаем первую роль (если есть)
+
+                    // Отображаем email и роль в навбаре
+                    $('#navUserEmail').text(userEmail);
+                    $('#navUserRole').text(userRole);
+                } else {
+                    alert('Error: Unable to fetch user profile data');
+                }
+            },
+            error: function(error) {
+                console.error('Error fetching user profile data:', error);
+                alert('Error fetching user profile data');
+            }
+        });
+
+        // Обработчик клика для кнопки выхода
+        $('#logoutButton').on('click', function() {
+            window.location.href = 'http://localhost:8080/logout';  // Перенаправление на страницу выхода
+        });
+    });
+
+
+
+
+
 
 </script>
 

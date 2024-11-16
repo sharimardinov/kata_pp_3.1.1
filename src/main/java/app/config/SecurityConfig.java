@@ -60,9 +60,9 @@ public class SecurityConfig {
                             boolean isAdmin = authentication.getAuthorities().stream()
                                     .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ADMIN"));
                             if (isAdmin) {
-                                response.sendRedirect("/api/admin");
+                                response.sendRedirect("/admin");
                             } else {
-                                response.sendRedirect("/api/user");
+                                response.sendRedirect("/user");
                             }
                         })
                         .permitAll()
