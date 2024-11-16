@@ -13,7 +13,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
-import java.util.List;
 
 @Controller
 @RequestMapping("/user")
@@ -38,22 +37,13 @@ public class UserController {
                 .findFirst()
                 .orElse("USER");
 
-        // Добавляем основные атрибуты
         model.addAttribute("userEmail", email);
         model.addAttribute("userRole", role);
         model.addAttribute("isAdmin", true);
         model.addAttribute("roles", roleService.findAll());
-
-        // Передаем пользователей для отображения в таблице
-        List<User> users = userService.findAll();
-        model.addAttribute("users", users);
-
-        // Новый пользователь для формы
-        model.addAttribute("newUser", new User());
-        String currentUsername = authentication.getName();
-        User currentUser = userService.findByEmail(currentUsername);
-        model.addAttribute("users", List.of(currentUser));
         model.addAttribute("requestURI", request.getRequestURI());
-        return "userPage"; // Имя шаблона для списка пользователей
+
+        return "userPage";
     }
+
 }

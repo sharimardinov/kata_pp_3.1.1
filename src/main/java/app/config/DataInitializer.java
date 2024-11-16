@@ -28,7 +28,7 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        // Создаем роли, если они не существуют
+
         Role userRole = roleRepository.findByName("USER");
         if (userRole == null) {
             userRole = new Role();
@@ -43,7 +43,6 @@ public class DataInitializer implements CommandLineRunner {
             roleRepository.save(adminRole);
         }
 
-        // Создаем пользователей, если они не существуют
         if (userRepository.findByEmail("user1@example.com") == null) {
             User user1 = new User("Иван", "Иванов", "user1@example.com", passwordEncoder.encode("password1"), 25, new HashSet<>(Set.of(userRole)));
             userRepository.save(user1);

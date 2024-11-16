@@ -11,7 +11,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -79,11 +78,5 @@ public class User implements UserDetails {
         return email;
     }
 
-
-    // Метод для проверки, является ли пользователь администратором
-    public boolean isAdmin() {
-        return roles.stream()
-                .anyMatch(role -> role.getName().equals("ADMIN")); // Используем getName()
-    }
 
 }

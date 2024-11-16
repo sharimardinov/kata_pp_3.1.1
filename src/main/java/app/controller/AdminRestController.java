@@ -26,13 +26,14 @@ public class AdminRestController {
         this.roleService = roleService;
     }
 
-    // Получение списка всех пользователей
+    // Получение списка всех юзеров
     @GetMapping("/users")
     public ResponseEntity<List<User>> getAllUsers() {
         List<User> users = userService.findAll();
         return ResponseEntity.ok(users);  // Возвращаем OK статус с пользователями
     }
 
+    // получение списка всех ролей
     @GetMapping("/roles")
     public ResponseEntity<List<Role>> getAllRoles() {
         List<Role> roles = roleService.findAll();
@@ -40,7 +41,7 @@ public class AdminRestController {
     }
 
 
-    // Получение пользователя по ID
+    // получение юзера по ID
     @GetMapping("/users/{id}")
     public ResponseEntity<User> getUserById(@PathVariable Long id) {
         User user = userService.findById(id);
@@ -51,14 +52,14 @@ public class AdminRestController {
         }
     }
 
-    // Создание нового пользователя
+    // создание нового юзера
     @PostMapping("/users")
     public ResponseEntity<User> createUser(@RequestBody User user) {
         User createdUser = userService.save(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);  // Возвращаем статус 201 и созданного пользователя
     }
 
-    // Обновление существующего пользователя
+    // эдит юзера
     @PutMapping("/users/{id}")
     public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User user) {
         User updatedUser = userService.update(id, user);

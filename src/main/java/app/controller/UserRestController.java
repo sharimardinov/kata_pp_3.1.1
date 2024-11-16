@@ -22,14 +22,13 @@ public class UserRestController {
         this.userService = userService;
     }
 
-    // Получение данных о текущем пользователе
     @GetMapping("/profile")
     public ResponseEntity<User> getProfile(Principal principal) {
         User user = userService.findByEmail(principal.getName());
         if (user != null) {
-            return ResponseEntity.ok(user);  // Возвращаем статус 200 с данными пользователя
+            return ResponseEntity.ok(user);
         } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();  // Возвращаем 404, если пользователь не найден
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
 }

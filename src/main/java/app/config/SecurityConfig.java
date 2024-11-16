@@ -36,7 +36,6 @@ public class SecurityConfig {
                         .anyRequest().authenticated() // Все остальные запросы требуют аутентификации
                 )
 
-                // Настраиваем форму логина
                 .formLogin(login -> login
                         .successHandler((request, response, authentication) -> {
                             boolean isAdmin = authentication.getAuthorities().stream()
@@ -46,7 +45,6 @@ public class SecurityConfig {
                         .permitAll()
                 )
 
-                // Настраиваем логаут
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .invalidateHttpSession(true)

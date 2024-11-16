@@ -29,7 +29,6 @@ public class AdminController {
         this.request = request;
     }
 
-    // Главная страница админки со списком пользователей, формой создания и редактирования
     @GetMapping
     public String homepage(Model model, Principal principal) {
         String email = principal.getName();
@@ -45,39 +44,4 @@ public class AdminController {
         return "adminPage";
     }
 
-    @GetMapping("/admin")
-    public String adminPage() {
-        return "adminPage"; // Возвращает имя шаблона, например, admin.html
-    }
-//    // Создание нового пользователя
-//    @PostMapping("/create")
-//    public String createUser(@ModelAttribute("newUser") User user, Model model) {
-//        try {
-//            userService.save(user);
-//            return "redirect:/admin"; // Возврат на страницу списка пользователей
-//        } catch (RuntimeException e) {
-//            return "redirect:/admin"; // Остаемся на той же странице, чтобы отобразить ошибки
-//        }
-//    }
-//
-//    @GetMapping("/edit/{id}")
-//    public String showEditUserForm(@RequestParam("id") Long id, Model model, RoleService roleService) {
-//        User user = userService.findById(id);
-//        model.addAttribute("user", user); // Передаем пользователя в форму редактирования
-//        model.addAttribute("roles", roleService.findAll()); // Передаем список ролей
-//        return "admin/edit"; // Возвращаем шаблон модального окна редактирования
-//    }
-//
-//    @PostMapping("/edit")
-//    public String editUser(@ModelAttribute("user") User user, Model model) {
-//        userService.update(user.getId(), user);
-//        return "redirect:/admin";
-//    }
-//
-//    // Удаление пользователя
-//    @PostMapping("/delete")
-//    public String deleteUser(@RequestParam("id") Long id) {
-//        userService.delete(id);
-//        return "redirect:/admin"; // Возврат на страницу списка пользователей
-//    }
 }

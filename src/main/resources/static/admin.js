@@ -61,6 +61,12 @@ $('#userForm').submit(async function (event) {
     const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
     const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
 
+    if (!csrfToken || !csrfHeader) {
+        console.error('CSRF Token or Header is missing!');
+        alert('CSRF Token or Header is missing!');
+        return;
+    }
+
     // Отправка данных на сервер с использованием fetch
     try {
         const response = await fetch("http://localhost:8080/api/admin/users", {
