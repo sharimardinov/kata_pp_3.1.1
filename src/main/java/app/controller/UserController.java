@@ -7,7 +7,6 @@ import app.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +28,7 @@ public class UserController {
     }
 
     @GetMapping
-    public String homepage(Model model, Authentication authentication, Principal principal, HttpServletRequest request) {
+    public String homepage(Model model, Principal principal, HttpServletRequest request) {
         String email = principal.getName();
         User user = userService.findByEmail(email);
         String role = user.getRoles().stream()
@@ -47,3 +46,4 @@ public class UserController {
     }
 
 }
+

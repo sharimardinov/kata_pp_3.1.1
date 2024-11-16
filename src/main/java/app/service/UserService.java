@@ -100,3 +100,4 @@ public class UserService implements UserDetailsService {
         existingUser.setRoles(user.getRoles());
     }
 }
+

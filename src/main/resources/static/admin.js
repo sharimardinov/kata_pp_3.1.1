@@ -2,7 +2,9 @@
 async function loadUsers() {
     try {
         const response = await fetch('http://localhost:8080/api/admin/users');
-        if (!response.ok) throw new Error(`Error: ${response.status}`);
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status}`);
+        }
 
         const users = await response.json(); // Преобразуем JSON в объект
         let rows = '';
@@ -48,7 +50,7 @@ $('#userForm').submit(async function (event) {
         email: $('#email').val(),
         age: $('#age').val(),
         password: $('#password').val(),  // Добавляем пароль
-        roles: $('#roles').val() ? $('#roles').val().map(roleId => ({
+        roles: $("#roles").val() ? $('#roles').val().map(roleId => ({
             id: roleId,  // Здесь предполагается, что roleId это ID роли
             name: "USER",  // Пример статического имени
             authority: "USER"  // Статический authority
@@ -181,7 +183,7 @@ $(document).ready(function() {
         };
 
         // Убираем поле пароля, если оно пустое
-        if ($('#editUserPassword').val()) {
+        if ($("#editUserPassword").val()) {
             userData.password = $('#editUserPassword').val();
         }
 
