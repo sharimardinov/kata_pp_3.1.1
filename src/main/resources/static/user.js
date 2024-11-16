@@ -7,7 +7,7 @@ async function loadUsers() {
         const user = await response.json(); // Преобразуем JSON в объект
 
         // Заполняем таблицу данными пользователя
-        let rows = `
+        document.querySelector('#userTable tbody').innerHTML = `
         <tr>
             <td>${user.id}</td>
             <td>${user.name}</td>
@@ -17,8 +17,6 @@ async function loadUsers() {
             <td>${user.roles.map(role => role.name).join(', ')}</td>
         </tr>
         `;
-
-        document.querySelector('#userTable tbody').innerHTML = rows;
     } catch (error) {
         console.error('Failed to load user:', error);
         alert('Failed to load user.');

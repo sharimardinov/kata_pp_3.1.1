@@ -1,4 +1,4 @@
-package app;
+package app.config;
 
 import app.model.Role;
 import app.model.User;
@@ -27,7 +27,7 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
 
         Role userRole = roleRepository.findByName("USER");
         if (userRole == null) {
